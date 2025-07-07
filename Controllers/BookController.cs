@@ -1,6 +1,7 @@
 ﻿using BookStoreApi.Data;
 using BookStoreApi.Dtos;
 using BookStoreApi.Models;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookStoreApi.Controllers;
@@ -71,6 +72,20 @@ public class BookController:ControllerBase
         return CreatedAtAction(nameof(GetBook), new { id = book.Id }, readDto);
     }
 
+    [HttpPatch("{id}")]
+    public IActionResult PatchBook(int id, JsonPatchDocument<Book> patchDoc)
+    {
+        if(patchDoc == null)
+            return BadRequest();
+        var book = _context.Books.Find(id);
+        if (book == null)
+            return NotFound();
+        patchDoc.ApplyTo(book,ModelState);
+        if(!ModelState.IsValid)
+            return BadRequest(ModelState);
+        _context.SaveChanges();
+        return NoContent();
+    }
     [HttpPut]
     public IActionResult UpdateBook(int id, BookCreateDto bookDto)
     {
