@@ -1,4 +1,6 @@
-﻿using BookStoreApi.Data;
+﻿using System.Xml.XPath;
+using AutoMapper;
+using BookStoreApi.Data;
 using BookStoreApi.Dtos;
 using BookStoreApi.Models;
 using Microsoft.AspNetCore.JsonPatch;
@@ -8,83 +10,78 @@ namespace BookStoreApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Produces("application/json")]
 public class BookController:ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly IMapper _mapper;
 
-    public BookController(AppDbContext context)
+    public BookController(AppDbContext context,IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
     
     [HttpGet]
     public ActionResult<IEnumerable<BookReadDto>> GetBooks()
     {
-        var books = _context.Books.Select(b=>new BookReadDto
-        {
-            Id = b.Id,
-            Title = b.Title,
-            Author = b.Author,
-            Year = b.Year,
-            Price = b.Price
-        })    
-            .ToList();
-        return Ok(books);
+        var books = _context.Books.ToList();
+        var bookDtos = _mapper.Map<IEnumerable<BookReadDto>>(books);
+        return Ok(bookDtos);
     }
 
     [HttpGet("id")]
-    public ActionResult<BookReadDto> GetBook(int id)
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookReadDto))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public ActionResult<BookReadDto> GetBookById(int id)
     {
         var book = _context.Books.Find(id);
         if (book == null) 
             return NotFound();
-        var dto = new BookReadDto
-        {
-            Id = book.Id,
-            Title = book.Title,
-            Author = book.Author,
-            Year = book.Year,
-            Price = book.Price
-        };
-        return Ok(dto);
+        var bookDto = _mapper.Map<BookReadDto>(book);
+        return Ok(bookDto);
     }
 
     [HttpPost]
-    public ActionResult<BookReadDto> CreateBook(BookCreateDto BookDto)
+    [ProducesResponseType(StatusCodes.Status201Created,Type = typeof(BookReadDto))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public ActionResult<BookReadDto> CreateBook(BookCreateDto bookDto)
     {
-        var book = new Book
-        {
-            Title = BookDto.Title,
-            Author = BookDto.Author,
-            Year = BookDto.Year,
-            Price = BookDto.Price
-        };
+        var book = _mapper.Map<Book>(bookDto);
         _context.Books.Add(book);
         _context.SaveChanges();
-        var readDto = new BookReadDto
-        {
-            Id = book.Id,
-            Title = book.Title,
-            Author = book.Author,
-            Year = book.Year,
-            Price = book.Price
-        };
-        return CreatedAtAction(nameof(GetBook), new { id = book.Id }, readDto);
+        
+        var bookReadDto = _mapper.Map<BookReadDto>(book);
+        return CreatedAtAction(nameof(GetBookById), new { id = book.Id }, bookReadDto);
     }
 
-    [HttpPatch("{id}")]
-    public IActionResult PatchBook(int id, JsonPatchDocument<Book> patchDoc)
+    [HttpPatch("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public IActionResult PatchBook(int id, JsonPatchDocument<BookPatchDto>? patchDoc)
     {
         if(patchDoc == null)
-            return BadRequest();
-        var book = _context.Books.Find(id);
-        if (book == null)
+            return BadRequest("Patch document cannot be null.");
+        var book = _context.Books.FirstOrDefault(b=>b.Id==id);
+        if(book == null)
             return NotFound();
-        patchDoc.ApplyTo(book,ModelState);
-        if(!ModelState.IsValid)
+        
+        //Map entity to patchable DTO
+        var bookToPatch =  _mapper.Map<BookPatchDto>(book);
+        // apply patch
+        patchDoc.ApplyTo(bookToPatch,ModelState);
+        
+        //validate patched dto
+        
+        if(!TryValidateModel(bookToPatch))
             return BadRequest(ModelState);
+        
+        //map patched dto back to entity
+        _mapper.Map(bookToPatch, book);
+        
         _context.SaveChanges();
-        return NoContent();
+        return NoContent();        
     }
     [HttpPut]
     public IActionResult UpdateBook(int id, BookCreateDto bookDto)
@@ -92,10 +89,7 @@ public class BookController:ControllerBase
         var book = _context.Books.Find(id);
         if (book == null)
             return NotFound();
-        book.Title = bookDto.Title;
-        book.Author = bookDto.Author;
-        book.Year = bookDto.Year;
-        book.Price = bookDto.Price;
+        _mapper.Map(bookDto, book);
         _context.SaveChanges();
         return NoContent();
     }
