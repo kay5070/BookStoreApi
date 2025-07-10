@@ -3,6 +3,7 @@ using AutoMapper;
 using BookStoreApi.Data;
 using BookStoreApi.Dtos;
 using BookStoreApi.Models;
+using BookStoreApi.Services;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,21 +14,23 @@ namespace BookStoreApi.Controllers;
 [Produces("application/json")]
 public class BookController:ControllerBase
 {
+    
     private readonly AppDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IBooksService _booksService;
 
-    public BookController(AppDbContext context,IMapper mapper)
+    public BookController(AppDbContext context,IMapper mapper,IBooksService booksService)
     {
         _context = context;
         _mapper = mapper;
+        _booksService = booksService;
     }
     
     [HttpGet]
     public ActionResult<IEnumerable<BookReadDto>> GetBooks()
     {
-        var books = _context.Books.ToList();
-        var bookDtos = _mapper.Map<IEnumerable<BookReadDto>>(books);
-        return Ok(bookDtos);
+        var books = _booksService.GetAll();
+        return Ok(books);
     }
 
     [HttpGet("id")]
@@ -35,11 +38,10 @@ public class BookController:ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult<BookReadDto> GetBookById(int id)
     {
-        var book = _context.Books.Find(id);
+        var book = _booksService.GetById(id);
         if (book == null) 
             return NotFound();
-        var bookDto = _mapper.Map<BookReadDto>(book);
-        return Ok(bookDto);
+        return Ok(book);
     }
 
     [HttpPost]
@@ -47,12 +49,9 @@ public class BookController:ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public ActionResult<BookReadDto> CreateBook(BookCreateDto bookDto)
     {
-        var book = _mapper.Map<Book>(bookDto);
-        _context.Books.Add(book);
-        _context.SaveChanges();
+        var createdBook  = _booksService.Create(bookDto);
         
-        var bookReadDto = _mapper.Map<BookReadDto>(book);
-        return CreatedAtAction(nameof(GetBookById), new { id = book.Id }, bookReadDto);
+        return CreatedAtAction(nameof(GetBookById), new { id = createdBook.Id }, createdBook);
     }
 
     [HttpPatch("{id:int}")]
@@ -61,48 +60,27 @@ public class BookController:ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult PatchBook(int id, JsonPatchDocument<BookPatchDto>? patchDoc)
     {
-        if(patchDoc == null)
-            return BadRequest("Patch document cannot be null.");
-        var book = _context.Books.FirstOrDefault(b=>b.Id==id);
-        if(book == null)
-            return NotFound();
-        
-        //Map entity to patchable DTO
-        var bookToPatch =  _mapper.Map<BookPatchDto>(book);
-        // apply patch
-        patchDoc.ApplyTo(bookToPatch,ModelState);
-        
-        //validate patched dto
-        
-        if(!TryValidateModel(bookToPatch))
+        if (patchDoc == null)
+            return BadRequest("Patch document cannot  be null.");
+
+        var result = _booksService.PatchBook(id, patchDoc, ModelState);
+
+        if (!ModelState.IsValid)
             return BadRequest(ModelState);
-        
-        //map patched dto back to entity
-        _mapper.Map(bookToPatch, book);
-        
-        _context.SaveChanges();
-        return NoContent();        
+
+        return result ? NoContent() : NotFound();
+
     }
     [HttpPut]
-    public IActionResult UpdateBook(int id, BookCreateDto bookDto)
+    public IActionResult UpdateBook(int id, BookUpdateDto  bookDto)
     {
-        var book = _context.Books.Find(id);
-        if (book == null)
-            return NotFound();
-        _mapper.Map(bookDto, book);
-        _context.SaveChanges();
-        return NoContent();
+        return _booksService.Update(id, bookDto) ? NoContent() : NotFound();
     }
 
     [HttpDelete("{id}")]
     public IActionResult DeleteBook(int id)
     {
-        var book = _context.Books.Find(id);
-        if (book == null)
-            return NotFound();
-        _context.Books.Remove(book);
-        _context.SaveChanges();
-        return NoContent();
+        return _booksService.Delete(id) ? NoContent() : NotFound();
     }
 }
 
