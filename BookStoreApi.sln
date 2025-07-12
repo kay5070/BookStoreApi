@@ -7,6 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookStoreApi", "BookStoreAp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookStoreApi.Tests", "BookStoreApi.Tests\BookStoreApi.Tests.csproj", "{D07B5E3D-9827-4CED-85E9-C0D37DD59136}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookStoreApi.Domain", "BookStoreApi.Domain\BookStoreApi.Domain.csproj", "{3A75F3B0-00C0-4473-A036-CF821DE724EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookStoreApi.Application", "BookStoreApi.Application\BookStoreApi.Application.csproj", "{772B32C2-1012-43AF-AF7E-EE0D284452EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookStoreApi.Infrastructure", "BookStoreApi.Infrastructure\BookStoreApi.Infrastructure.csproj", "{8F5C3780-3A59-460E-ADE5-DBFD7B7464E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +30,17 @@ Global
 		{D07B5E3D-9827-4CED-85E9-C0D37DD59136}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D07B5E3D-9827-4CED-85E9-C0D37DD59136}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D07B5E3D-9827-4CED-85E9-C0D37DD59136}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A75F3B0-00C0-4473-A036-CF821DE724EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A75F3B0-00C0-4473-A036-CF821DE724EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A75F3B0-00C0-4473-A036-CF821DE724EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A75F3B0-00C0-4473-A036-CF821DE724EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{772B32C2-1012-43AF-AF7E-EE0D284452EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{772B32C2-1012-43AF-AF7E-EE0D284452EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{772B32C2-1012-43AF-AF7E-EE0D284452EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{772B32C2-1012-43AF-AF7E-EE0D284452EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F5C3780-3A59-460E-ADE5-DBFD7B7464E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F5C3780-3A59-460E-ADE5-DBFD7B7464E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F5C3780-3A59-460E-ADE5-DBFD7B7464E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F5C3780-3A59-460E-ADE5-DBFD7B7464E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

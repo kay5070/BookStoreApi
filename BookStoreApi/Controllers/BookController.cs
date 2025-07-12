@@ -1,9 +1,9 @@
 ﻿using System.Xml.XPath;
 using AutoMapper;
+using BookStoreApi.Application.Interfaces;
 using BookStoreApi.Data;
 using BookStoreApi.Dtos;
 using BookStoreApi.Models;
-using BookStoreApi.Services;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,7 +33,7 @@ public class BookController:ControllerBase
         return Ok(books);
     }
 
-    [HttpGet("id")]
+    [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BookReadDto))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult<BookReadDto> GetBookById(int id)
@@ -54,23 +54,26 @@ public class BookController:ControllerBase
         return CreatedAtAction(nameof(GetBookById), new { id = createdBook.Id }, createdBook);
     }
 
-    [HttpPatch("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public IActionResult PatchBook(int id, JsonPatchDocument<BookPatchDto>? patchDoc)
+    [HttpPatch("{id}")]
+    public IActionResult PatchBook(int id, [FromBody] JsonPatchDocument<BookPatchDto> patchDoc)
     {
-        if (patchDoc == null)
-            return BadRequest("Patch document cannot  be null.");
+        var book = _booksService.GetByIdForPatch(id);
+        if (book == null)
+            return NotFound();
 
-        var result = _booksService.PatchBook(id, patchDoc, ModelState);
+        patchDoc.ApplyTo(book, ModelState); // this works in Controller
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        return result ? NoContent() : NotFound();
-
+        var success = _booksService.ApplyPatch(id, book);
+        return success ? NoContent() : NotFound();
     }
+
+
     [HttpPut]
     public IActionResult UpdateBook(int id, BookUpdateDto  bookDto)
     {

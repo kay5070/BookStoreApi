@@ -1,16 +1,13 @@
-﻿using Xunit;
-using BookStoreApi.Services;
-using BookStoreApi.Repositories;
-using BookStoreApi.Models;
+﻿using AutoMapper;
+using BookStoreApi.Application.Interfaces;
+using BookStoreApi.Application.Services;
+using BookStoreApi.Domain.Entities;
 using BookStoreApi.Dtos;
 using BookStoreApi.Profiles;
 using FluentAssertions;
 using Moq;
-using AutoMapper;
-using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace BookStoreApi.Tests.Services;
+namespace BookStoreApi.Tests.Tests.Services;
 
 public class BooksServiceTests
 {
@@ -169,62 +166,66 @@ public class BooksServiceTests
     }
 
     [Fact]
-    public void PatchBook_ShouldReturnTrue_WhenValidPatch()
+    public void GetByIdForPatch_ShouldReturnDto_WhenBookExists()
     {
-        // Arrange
-        var book = new Book { Id = 1, Title = "Old", Author = "Author", Year = 2000, Price = 50 };
-        var patchDoc = new JsonPatchDocument<BookPatchDto>();
-        patchDoc.Replace(b => b.Title, "Updated");
-
-        var modelState = new ModelStateDictionary();
+        // 1. Arrange
+        var book = new Book { Id = 1, Title = "Original", Author = "Author", Price = 100m, Year = 2020 };
 
         _mockRepo.Setup(r => r.GetById(1)).Returns(book);
-        _mockRepo.Setup(r => r.Save());
-
-        // Act
-        var result = _service.PatchBook(1, patchDoc, modelState);
-
-        // Assert
-        result.Should().BeTrue();
-        book.Title.Should().Be("Updated");
-        _mockRepo.Verify(r => r.Save(), Times.Once);
+        
+        // 2. Act
+        var result = _service.GetByIdForPatch(1);
+        // 3. Assert
+        result.Should().NotBeNull();
+        result!.Title.Should().Be("Original");
+        result.Author.Should().Be("Author");
     }
+    
+[Fact]
+public void GetByIdForPatch_ShouldReturnNull_WhenBookDoesNotExist()
+{
+    // Arrange
+    _mockRepo.Setup(r => r.GetById(1)).Returns((Book?)null);
 
-    [Fact]
-    public void PatchBook_ShouldReturnFalse_WhenBookNotFound()
-    {
-        // Arrange
-        var patchDoc = new JsonPatchDocument<BookPatchDto>();
-        patchDoc.Replace(b => b.Title, "Title");
+    // Act
+    var result = _service.GetByIdForPatch(1);
 
-        var modelState = new ModelStateDictionary();
-        _mockRepo.Setup(r => r.GetById(1)).Returns((Book?)null);
+    // Assert
+    result.Should().BeNull();
+}
 
-        // Act
-        var result = _service.PatchBook(1, patchDoc, modelState);
+[Fact]
+public void ApplyPatch_ShouldMapAndSave_WhenBookExists()
+{
+    // Arrange
+    var book = new Book { Id = 1, Title = "Before Patch", Author = "Old Author", Year = 2021, Price = 40 };
+    var patchedDto = new BookPatchDto { Title = "After Patch", Author = "New Author", Year = 2023, Price = 60 };
 
-        // Assert
-        result.Should().BeFalse();
-    }
+    _mockRepo.Setup(r => r.GetById(1)).Returns(book);
+    _mockRepo.Setup(r => r.Save());
 
-    [Fact]
-    public void PatchBook_ShouldReturnFalse_WhenModelStateInvalid()
-    {
-        // Arrange
-        var book = new Book { Id = 1, Title = "Old Title", Author = "Author", Year = 2000, Price = 50 };
-        var patchDoc = new JsonPatchDocument<BookPatchDto>();
-        patchDoc.Replace(b => b.Title, new string('A', 101)); // too long
+    // Act
+    var result = _service.ApplyPatch(1, patchedDto);
 
-        var modelState = new ModelStateDictionary();
-        modelState.AddModelError("Title", "Title is too long");
+    // Assert
+    result.Should().BeTrue();
+    book.Title.Should().Be("After Patch");
+    book.Author.Should().Be("New Author");
+    _mockRepo.Verify(r => r.Save(), Times.Once);
+}
 
-        _mockRepo.Setup(r => r.GetById(1)).Returns(book);
+[Fact]
+public void ApplyPatch_ShouldReturnFalse_WhenBookDoesNotExist()
+{
+    // Arrange
+    var patchedDto = new BookPatchDto { Title = "X", Author = "Y", Year = 2023, Price = 99 };
+    _mockRepo.Setup(r => r.GetById(1)).Returns((Book?)null);
 
-        // Act
-        var result = _service.PatchBook(1, patchDoc, modelState);
+    // Act
+    var result = _service.ApplyPatch(1, patchedDto);
 
-        // Assert
-        result.Should().BeFalse();
-        _mockRepo.Verify(r => r.Save(), Times.Never);
-    }
+    // Assert
+    result.Should().BeFalse();
+    _mockRepo.Verify(r => r.Save(), Times.Never);
+}
 }

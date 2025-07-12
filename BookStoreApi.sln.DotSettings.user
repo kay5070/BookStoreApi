@@ -8,6 +8,6 @@
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=6a701159_002Da6d0_002D49eb_002D8da2_002D22baf6313a59/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GetAll_ReturnsListOfBooks" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::D07B5E3D-9827-4CED-85E9-C0D37DD59136::net8.0::BookStoreApi.Tests.Services.BooksServiceTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::D07B5E3D-9827-4CED-85E9-C0D37DD59136::net8.0::BookStoreApi.Tests.Tests.Services.BooksServiceTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
