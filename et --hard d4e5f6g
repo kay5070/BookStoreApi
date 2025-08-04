@@ -1,0 +1,20 @@
+[33m35753de[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/master[m[33m, [m[1;32mmaster[m[33m)[m HEAD@{0}: reset: moving to 35753debabadf16126e9754e934baf0784d8a530
+[33m043d263[m HEAD@{1}: reset: moving to 043d263ee0f636f9042212959ca1079b10621456
+[33mcc30aff[m HEAD@{2}: pull origin master --rebase (start): checkout cc30aff27512d2c2fe1be98a87269caa0f353f50
+[33m35753de[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/master[m[33m, [m[1;32mmaster[m[33m)[m HEAD@{3}: commit: Remove .idea folder from version control
+[33m5924eeb[m HEAD@{4}: checkout: moving from master to master
+[33m5924eeb[m HEAD@{5}: checkout: moving from master to master
+[33m5924eeb[m HEAD@{6}: checkout: moving from main to master
+[33md8eef63[m HEAD@{7}: commit: temp
+[33m043d263[m HEAD@{8}: commit: Applied Clean Architecture
+[33mcd643cc[m HEAD@{9}: commit: Added Unit Testing
+[33m5924eeb[m HEAD@{10}: checkout: moving from main to main
+[33m5924eeb[m HEAD@{11}: Branch: renamed refs/heads/master to refs/heads/main
+[33m5924eeb[m HEAD@{13}: commit: last
+[33m22f99f7[m HEAD@{14}: commit: added unit tests for the crud operations
+[33m3774d23[m HEAD@{15}: commit: .
+[33m232041d[m HEAD@{16}: commit: refactored the methods to use the service class
+[33ma447845[m HEAD@{17}: commit: added automapper and used it in controller
+[33m23f1e30[m HEAD@{18}: commit: added CRUD operations
+[33m5c026bb[m HEAD@{19}: commit: Installed EF Core
+[33mc849bb8[m HEAD@{20}: commit (initial): Installed EF Core InMemory provider and configured database
