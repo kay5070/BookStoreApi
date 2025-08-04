@@ -2,16 +2,12 @@
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace BookStoreApi.Application.Interfaces;
-
 public interface IBooksService
 {
-    IEnumerable<BookReadDto> GetAll();
-    BookReadDto? GetById(int id);
-    BookReadDto Create(BookCreateDto bookDto);
-    bool Update(int id, BookUpdateDto bookDto);
-    BookPatchDto? GetByIdForPatch(int id);
-    bool ApplyPatch(int id, BookPatchDto patchedDto);
-
-    bool Delete(int id);
+    Task<IEnumerable<BookReadDto>> GetAllAsync();
+    Task<BookReadDto?> GetByIdAsync(int id);
+    Task<BookReadDto> CreateAsync(BookCreateDto bookDto);
+    Task<bool> UpdateAsync(int id, BookUpdateDto bookDto);
+    Task<bool> PatchBookAsync(int id, JsonPatchDocument<BookPatchDto> patchDoc, ModelStateDictionary modelState);
+    Task<bool> DeleteAsync(int id);
 }

@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using BookStoreApi.Application.Interfaces;
-using BookStoreApi.Application.Services;
 using BookStoreApi.Domain.Entities;
 using BookStoreApi.Dtos;
 using BookStoreApi.Profiles;

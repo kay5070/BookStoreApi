@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using BookStoreApi.Domain.Entities;
 using BookStoreApi.Dtos;
-using BookStoreApi.Models;
 
 namespace BookStoreApi.Profiles;
 

@@ -1,11 +1,8 @@
 ﻿using AutoMapper;
-using BookStoreApi.Application.Interfaces;
-using BookStoreApi.Domain.Entities;
 using BookStoreApi.Dtos;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-
-namespace BookStoreApi.Application.Services;
+using BookStoreApi.Domain.Entities;
 
 public class BooksService : IBooksService
 {
@@ -17,62 +14,68 @@ public class BooksService : IBooksService
         _repository = repository;
         _mapper = mapper;
     }
-    public IEnumerable<BookReadDto> GetAll()
+
+    public async Task<IEnumerable<BookReadDto>> GetAllAsync()
     {
-        var books = _repository.GetAll();
+        var books = await _repository.GetAllAsync();
         return _mapper.Map<IEnumerable<BookReadDto>>(books);
     }
 
-    public BookReadDto? GetById(int id)
+    public async Task<BookReadDto?> GetByIdAsync(int id)
     {
-        var book = _repository.GetById(id);
+        var book = await _repository.GetByIdAsync(id);
         return book == null ? null : _mapper.Map<BookReadDto>(book);
     }
 
-    public BookReadDto Create(BookCreateDto bookDto)
+    public async Task<BookReadDto> CreateAsync(BookCreateDto bookDto)
     {
         var book = _mapper.Map<Book>(bookDto);
-        _repository.Add(book);
-        _repository.Save();
+        await _repository.AddAsync(book);
+        await _repository.SaveAsync();
         return _mapper.Map<BookReadDto>(book);
     }
 
-    public bool Update(int id, BookUpdateDto bookDto)
+    public async Task<bool> UpdateAsync(int id, BookUpdateDto bookDto)
     {
-
-        var book = _repository.GetById(id);
+        var book = await _repository.GetByIdAsync(id);
         if (book == null) return false;
 
         _mapper.Map(bookDto, book);
-        _repository.Save();
+        await _repository.SaveAsync();
         return true;
     }
-    public BookPatchDto? GetByIdForPatch(int id)
-    {
-        var book = _repository.GetById(id);
-        return book == null ? null : _mapper.Map<BookPatchDto>(book);
-    }
 
-    public bool ApplyPatch(int id, BookPatchDto patchedDto)
+    public async Task<bool> PatchBookAsync(int id, JsonPatchDocument<BookPatchDto> patchDoc, ModelStateDictionary modelState)
     {
-        var book = _repository.GetById(id);
+        var book = await _repository.GetByIdAsync(id);
         if (book == null)
             return false;
 
-        _mapper.Map(patchedDto, book);
-        _repository.Save();
+        var bookToPatch = _mapper.Map<BookPatchDto>(book);
+
+        patchDoc.ApplyTo(bookToPatch, error =>
+        {
+            modelState.AddModelError(error.AffectedObject?.ToString() ?? "", error.ErrorMessage);
+        });
+
+
+
+        if (!modelState.IsValid)
+            return false;
+
+        _mapper.Map(bookToPatch, book);
+        await _repository.SaveAsync();
         return true;
     }
 
-    
 
-    public bool Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var book = _repository.GetById(id);
+        var book = await _repository.GetByIdAsync(id);
         if (book == null) return false;
 
-       _repository.Delete(book);
-       _repository.Save();
+        _repository.Delete(book);
+        await _repository.SaveAsync();
         return true;
     }
 }

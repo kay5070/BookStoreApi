@@ -1,10 +1,9 @@
 
-using BookStoreApi.Application.Interfaces;
-using BookStoreApi.Application.Services;
+
+
 using BookStoreApi.Data;
 using BookStoreApi.Middlewares;
 using Microsoft.EntityFrameworkCore;
-using BookStoreApi.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
