@@ -9,5 +9,11 @@ public class AppDbContext :DbContext
     {
     }
     public virtual DbSet<Book> Books => Set<Book>();
-    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Book>()
+            .Property(b => b.Price)
+            .HasPrecision(18, 2);
+    }
 }
