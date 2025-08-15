@@ -1,7 +1,8 @@
-﻿
-using BookStoreApi.Dtos;
-using Microsoft.AspNetCore.JsonPatch;
+﻿using BookStoreApi.Application.Dtos;
+using BookStoreApi.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+
+namespace BookStoreApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -41,20 +42,6 @@ public class BookController : ControllerBase
     public async Task<IActionResult> UpdateBook(int id, BookUpdateDto bookDto)
     {
         return await _booksService.UpdateAsync(id, bookDto) ? NoContent() : NotFound();
-    }
-
-    [HttpPatch("{id}")]
-    public async Task<IActionResult> PatchBook(int id, JsonPatchDocument<BookPatchDto> patchDoc)
-    {
-        if (patchDoc == null)
-            return BadRequest("Patch document cannot be null.");
-
-        var result = await _booksService.PatchBookAsync(id, patchDoc, ModelState);
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        return result ? NoContent() : NotFound();
     }
 
     [HttpDelete("{id}")]

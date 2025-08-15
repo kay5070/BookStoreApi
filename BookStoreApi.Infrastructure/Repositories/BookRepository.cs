@@ -1,6 +1,9 @@
-﻿using BookStoreApi.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using BookStoreApi.Application.Interfaces;
 using BookStoreApi.Domain.Entities;
+using BookStoreApi.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace BookStoreApi.Infrastructure.Repositories;
 
 public class BookRepository : IBookRepository
 {
@@ -13,12 +16,12 @@ public class BookRepository : IBookRepository
 
     public async Task<IEnumerable<Book>> GetAllAsync()
     {
-        return await _context.Books.ToListAsync();
+        return await _context.Books.Include(b=>b.Author).ToListAsync();
     }
 
     public async Task<Book?> GetByIdAsync(int id)
     {
-        return await _context.Books.FindAsync(id);
+        return await _context.Books.Include(b => b.Author).FirstOrDefaultAsync(b => b.Id==id);
     }
 
     public async Task AddAsync(Book book)

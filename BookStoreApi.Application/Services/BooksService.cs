@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
-using BookStoreApi.Dtos;
-using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+using BookStoreApi.Application.Dtos;
+using BookStoreApi.Application.Interfaces;
 using BookStoreApi.Domain.Entities;
+
+namespace BookStoreApi.Application.Services;
 
 public class BooksService : IBooksService
 {
@@ -32,7 +33,9 @@ public class BooksService : IBooksService
         var book = _mapper.Map<Book>(bookDto);
         await _repository.AddAsync(book);
         await _repository.SaveAsync();
-        return _mapper.Map<BookReadDto>(book);
+
+        var retrievedBook = await _repository.GetByIdAsync(book.AuthorId);
+        return _mapper.Map<BookReadDto>(retrievedBook);
     }
 
     public async Task<bool> UpdateAsync(int id, BookUpdateDto bookDto)
@@ -44,31 +47,6 @@ public class BooksService : IBooksService
         await _repository.SaveAsync();
         return true;
     }
-
-    public async Task<bool> PatchBookAsync(int id, JsonPatchDocument<BookPatchDto> patchDoc, ModelStateDictionary modelState)
-    {
-        var book = await _repository.GetByIdAsync(id);
-        if (book == null)
-            return false;
-
-        var bookToPatch = _mapper.Map<BookPatchDto>(book);
-
-        patchDoc.ApplyTo(bookToPatch, error =>
-        {
-            modelState.AddModelError(error.AffectedObject?.ToString() ?? "", error.ErrorMessage);
-        });
-
-
-
-        if (!modelState.IsValid)
-            return false;
-
-        _mapper.Map(bookToPatch, book);
-        await _repository.SaveAsync();
-        return true;
-    }
-
-
     public async Task<bool> DeleteAsync(int id)
     {
         var book = await _repository.GetByIdAsync(id);

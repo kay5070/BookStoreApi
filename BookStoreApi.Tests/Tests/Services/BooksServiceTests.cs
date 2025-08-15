@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using BookStoreApi.Application.Dtos;
+using BookStoreApi.Application.Interfaces;
+using BookStoreApi.Application.Services;
 using BookStoreApi.Domain.Entities;
-using BookStoreApi.Dtos;
 using BookStoreApi.Profiles;
 using FluentAssertions;
 using Moq;
@@ -19,7 +21,7 @@ public class BooksServiceTests
 
         var config = new MapperConfiguration(cfg =>
         {
-            cfg.AddProfile<BooksProfile>();
+            cfg.AddProfile<MappingProfile>();
         });
 
         _mapper = config.CreateMapper();

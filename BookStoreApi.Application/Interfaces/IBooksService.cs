@@ -1,6 +1,6 @@
-﻿using BookStoreApi.Dtos;
-using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using BookStoreApi.Application.Dtos;
+
+namespace BookStoreApi.Application.Interfaces;
 
 public interface IBooksService
 {
@@ -8,6 +8,5 @@ public interface IBooksService
     Task<BookReadDto?> GetByIdAsync(int id);
     Task<BookReadDto> CreateAsync(BookCreateDto bookDto);
     Task<bool> UpdateAsync(int id, BookUpdateDto bookDto);
-    Task<bool> PatchBookAsync(int id, JsonPatchDocument<BookPatchDto> patchDoc, ModelStateDictionary modelState);
     Task<bool> DeleteAsync(int id);
 }

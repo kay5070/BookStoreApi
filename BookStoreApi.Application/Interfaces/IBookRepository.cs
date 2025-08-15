@@ -1,5 +1,7 @@
 ﻿using BookStoreApi.Domain.Entities;
 
+namespace BookStoreApi.Application.Interfaces;
+
 public interface IBookRepository
 {
     Task<IEnumerable<Book>> GetAllAsync();
