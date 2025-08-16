@@ -43,7 +43,8 @@ public class BookController : ControllerBase
     {
         return await _booksService.UpdateAsync(id, bookDto) ? NoContent() : NotFound();
     }
-
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteBook(int id)
     {
